@@ -51,6 +51,22 @@ export interface MonicaContactInformation {
     postal_code?: string | null;
   }>;
   description?: string | null;
+  how_you_met?: MonicaHowYouMet | null;
+}
+
+export interface MonicaHowYouMet {
+  general_information?: string | null;
+  first_met_date?: {
+    is_age_based: boolean | null;
+    is_year_unknown: boolean | null;
+    date: string | null;
+  } | null;
+  first_met_through_contact?: {
+    id: number;
+    complete_name?: string | null;
+    first_name?: string | null;
+    last_name?: string | null;
+  } | null;
 }
 
 export interface MonicaContact {
@@ -63,6 +79,7 @@ export interface MonicaContact {
   is_partial: boolean;
   account: { id: number };
   information?: MonicaContactInformation;
+  how_you_met?: MonicaHowYouMet | null;
   created_at?: string;
   updated_at?: string;
   contactFields?: MonicaContactField[];

@@ -13,6 +13,7 @@ import {
   registerRelationshipTools,
   registerTagTools,
   registerNoteTools,
+  registerIntroductionTools,
   registerMetadataTools,
   registerActionTools,
   registerFinancialTools,
@@ -35,6 +36,7 @@ export function registerTools(context: ToolRegistrationContext): void {
   registerRelationshipTools(context);
   registerTagTools(context);
   registerNoteTools(context);
+  registerIntroductionTools(context);
   registerActionTools(context);
   registerFinancialTools(context);
   registerMediaTools(context);

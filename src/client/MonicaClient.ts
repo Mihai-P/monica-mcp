@@ -397,6 +397,18 @@ export type DeceasedDateInput =
       type: 'unknown';
     };
 
+export type FirstMetDateInput =
+  | { type: 'exact'; day: number; month: number; year?: number | null }
+  | { type: 'age'; age: number }
+  | { type: 'unknown' };
+
+export interface IntroductionInput {
+  generalInformation?: string | null;
+  metThroughContactId?: number | null;
+  firstMetDate?: FirstMetDateInput;
+  addReminder?: boolean;
+}
+
 export interface ContactProfileInput {
   firstName: string;
   lastName?: string | null;
@@ -1468,6 +1480,17 @@ export class MonicaClient {
     });
   }
 
+  async setIntroduction(
+    contactId: number,
+    input: IntroductionInput
+  ): Promise<MonicaSingleResponse<MonicaContact>> {
+    const body = buildIntroductionRequestBody(input);
+    return this.request<MonicaSingleResponse<MonicaContact>>(`contacts/${contactId}/introduction`, {
+      method: 'PUT',
+      body: JSON.stringify(body)
+    });
+  }
+
   async fetchContactNotes(contactId: number, limit?: number, page?: number): Promise<MonicaPaginatedResponse<MonicaNote>> {
     return this.request<MonicaPaginatedResponse<MonicaNote>>(`contacts/${contactId}/notes`, {
       searchParams: {
@@ -1923,6 +1946,26 @@ function buildContactRequestBody(profile: ContactProfileInput): Record<string, u
     deceased_date_age: deceased.age,
     deceased_date_is_year_unknown: deceased.isYearUnknown,
     deceased_date_add_reminder: profile.remindOnDeceasedDate ?? false
+  };
+}
+
+function buildIntroductionRequestBody(input: IntroductionInput): Record<string, unknown> {
+  const date = input.firstMetDate ?? { type: 'unknown' as const };
+  const isDateKnown = date.type !== 'unknown';
+  const isAgeBased = date.type === 'age';
+
+  // Monica's introduction endpoint does not accept an is_year_unknown flag; a
+  // null year on an exact date is what records the year as unknown.
+  return {
+    general_information: toNull(input.generalInformation),
+    met_through_contact_id: input.metThroughContactId ?? null,
+    is_date_known: isDateKnown,
+    is_age_based: isAgeBased,
+    day: date.type === 'exact' ? date.day : null,
+    month: date.type === 'exact' ? date.month : null,
+    year: date.type === 'exact' ? (date.year ?? null) : null,
+    age: date.type === 'age' ? date.age : null,
+    add_reminder: input.addReminder ?? false
   };
 }
 

@@ -78,7 +78,7 @@ For development, you can swap `node dist/index.js` with `npm run dev --silent` t
 
 ## Tools exposed
 
-This Monica MCP server provides **21 tools** covering the most common CRM operations:
+This Monica MCP server provides **22 tools** covering the most common CRM operations:
 
 | Tool | Purpose |
 | --- | --- |
@@ -96,6 +96,7 @@ This Monica MCP server provides **21 tools** covering the most common CRM operat
 | `monica_manage_call` | Log calls with contacts (list/get/create/update/delete) to capture quick phone notes. |
 | `monica_manage_activity` | Track meetings/events with contacts. Accepts either `activityTypeId` or `activityTypeName`. |
 | `monica_manage_note` | List, inspect, create, update, or delete notes attached to a contact. |
+| `monica_set_introduction` | Record how you met a contact (Monica's "How you met" section): a free-text story, who introduced you, and an optional first-met date. |
 | **Planning & Follow-ups** | |
 | `monica_manage_task_reminder` | Manage Monica tasks and reminders together—choose the item type to list/get/create/update/delete either resource. |
 | `monica_manage_financial_record` | Manage Monica gifts and debts with a single tool (set `recordType` to "gift" or "debt"). |

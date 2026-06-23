@@ -6,6 +6,7 @@ import type {
   MonicaContact,
   MonicaContactField,
   MonicaContactFieldType,
+  MonicaHowYouMet,
   MonicaCountry,
   MonicaCurrency,
   MonicaDebt,
@@ -48,7 +49,48 @@ export function normalizeContactDetail(contact: MonicaContact) {
     createdAt: contact.created_at,
     updatedAt: contact.updated_at,
     customFields: rawContactFields.map(normalizeContactField),
-    tags: contact.tags ? contact.tags.map(normalizeTag) : []
+    tags: contact.tags ? contact.tags.map(normalizeTag) : [],
+    howYouMet: normalizeHowYouMet(contact.information?.how_you_met ?? contact.how_you_met)
+  };
+}
+
+export function normalizeHowYouMet(howYouMet: MonicaHowYouMet | null | undefined) {
+  if (!howYouMet) {
+    return undefined;
+  }
+
+  const generalInformation = howYouMet.general_information ?? undefined;
+  const firstMetThroughContact = howYouMet.first_met_through_contact
+    ? {
+        id: howYouMet.first_met_through_contact.id,
+        name:
+          howYouMet.first_met_through_contact.complete_name ||
+          [howYouMet.first_met_through_contact.first_name, howYouMet.first_met_through_contact.last_name]
+            .filter(Boolean)
+            .join(' ')
+            .trim() ||
+          undefined
+      }
+    : undefined;
+
+  const date = howYouMet.first_met_date;
+  const firstMetDate =
+    date && (date.date || date.is_age_based || date.is_year_unknown)
+      ? {
+          date: date.date ?? undefined,
+          isAgeBased: date.is_age_based ?? undefined,
+          isYearUnknown: date.is_year_unknown ?? undefined
+        }
+      : undefined;
+
+  if (!generalInformation && !firstMetThroughContact && !firstMetDate) {
+    return undefined;
+  }
+
+  return {
+    generalInformation,
+    firstMetThroughContact,
+    firstMetDate
   };
 }
 
@@ -83,6 +125,28 @@ export function buildContactSummary(contact: MonicaContact): string {
   if (contact.tags && contact.tags.length) {
     const tagNames = contact.tags.map((tag) => tag.name).join(', ');
     parts.push(`Tags: ${tagNames}`);
+  }
+
+  const howYouMet = normalizeHowYouMet(contact.information?.how_you_met ?? contact.how_you_met);
+  if (howYouMet) {
+    const metParts: string[] = [];
+    if (howYouMet.generalInformation) {
+      metParts.push(howYouMet.generalInformation);
+    }
+    if (howYouMet.firstMetThroughContact?.name) {
+      metParts.push(`through ${howYouMet.firstMetThroughContact.name}`);
+    }
+    if (howYouMet.firstMetDate?.date) {
+      const iso = howYouMet.firstMetDate.date.slice(0, 10); // YYYY-MM-DD
+      metParts.push(
+        howYouMet.firstMetDate.isYearUnknown
+          ? `first met ${iso.slice(5)} (year unknown)` // MM-DD; the stored year is a placeholder
+          : `first met ${iso}`
+      );
+    }
+    if (metParts.length) {
+      parts.push(`How you met: ${metParts.join(' — ')}`);
+    }
   }
 
   return parts.join('\n');

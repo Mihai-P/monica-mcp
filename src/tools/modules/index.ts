@@ -15,6 +15,7 @@ export { registerGroupTools } from './groups.js';
 export { registerRelationshipTools } from './relationships.js';
 export { registerTagTools } from './tags.js';
 export { registerNoteTools } from './notes.js';
+export { registerIntroductionTools } from './introduction.js';
 export { registerMetadataTools } from './metadata.js';
 export { registerActionTools } from './actionItems.js';
 export { registerFinancialTools } from './financial.js';
